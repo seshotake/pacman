@@ -1,0 +1,8 @@
+WORLD_SIZE: int = 20
+BLOCK_SIZE: int = 32
+
+WIDTH: int = WORLD_SIZE * BLOCK_SIZE
+HEIGHT: int = WORLD_SIZE * BLOCK_SIZE
+
+TITLE: str = 'Pacman'
+FPS: int = 60

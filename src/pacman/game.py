@@ -1,8 +1,10 @@
-import pygame
 import sys
 
-from settings import TITLE, WIDTH, HEIGHT, FPS
-from debug import debug
+import pygame
+
+from pacman.debug import debug
+from pacman.level import Level
+from pacman.settings import FPS, HEIGHT, TITLE, WIDTH
 
 
 class Game:
@@ -11,6 +13,8 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
+
+        self.level = Level()
 
     def run(self) -> None:
         """Game loop."""
@@ -38,11 +42,15 @@ class Game:
         """Game loop - draw."""
 
         # draw sprites
+        self.level.draw()
         debug(f"FPS: {self.clock.get_fps():.2f}")
+        debug(f"Level: {self.level.level_number}", (10, 40))
+        debug(f"Position: {self.level.player.rect.topleft}", (10, 80))
 
     def update(self) -> None:
         """Game loop - update."""
 
         # update sprites
+        self.level.update()
         pygame.display.update()
         self.clock.tick(FPS)
