@@ -1,0 +1,29 @@
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+lsp = [
+    "python-lsp-server[all]>=1.7.1",
+    "pylsp-mypy>=0.6.5",
+    "pylsp-rope>=0.1.11",
+    "python-lsp-ruff>=1.0.5",
+    "python-lsp-black>=1.2.1",
+    "rope>=1.7.0",
+    "mypy>=0.991",
+]
+
+[tool.pylsp-mypy]
+enabled = true
+live_mode = true
+strict = true
+
+[project]
+name = "pacman"
+version = "0.1"
+description = ""
+authors = [
+    {name = "seshotake", email = "seshotake@gmail.com"},
+]
+dependencies = [
+    "pygame>=2.1.2",
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}

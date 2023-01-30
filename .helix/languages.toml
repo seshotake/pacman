@@ -1,0 +1,6 @@
+[[language]]
+name = "python"
+auto-format = true
+
+[language.config.pylsp.plugins.ruff]
+enable = true
