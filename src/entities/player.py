@@ -7,9 +7,8 @@ from entities.entity import Entity, get_enemies
 class Player(Entity):
     """Represents the player"""
 
-    def __init__(self, position, obstacle_sprites, *groups) -> None:
-        super().__init__(*groups, type="player", position=position,
-                         obstacle_sprites=obstacle_sprites,
+    def __init__(self, obstacle_sprites, *groups) -> None:
+        super().__init__(*groups, type="player", obstacle_sprites=obstacle_sprites,
                          speed=PLAYER_SPEED, max_health=MAX_HEALTH)
 
         self.enemies = get_enemies(self.groups())
@@ -18,11 +17,10 @@ class Player(Entity):
         self.start_time_immunity = 0
         self.time_immunity = IMMUNITY_TIME
 
-    def set_position(self, x: int, y: int) -> None:
+    def set_position(self, position) -> None:
         """Set the position of the player"""
 
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.topleft = position
 
     def input(self) -> None:
         """Get the input of the player"""

@@ -17,6 +17,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.level = Level()
+        self.player = self.level.player
 
     def run(self) -> None:
         """Run the game."""

@@ -13,6 +13,7 @@ class Ghost(Entity):
                          max_health=id, image=f"assets/images/ghost{id}.png")
 
         self.hitbox = self.rect.inflate(-5, -5)
+        self.player = get_player(self.groups())
         self.damage = id
 
 
@@ -42,6 +43,5 @@ class Ghost(Entity):
     def update(self) -> None:
         """Update the ghost"""
 
-        player = get_player(self.groups())
-        self.direction = self.get_player_direction(player)
+        self.direction = self.get_player_direction(self.player)
         return super().update()

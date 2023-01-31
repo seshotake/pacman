@@ -18,6 +18,7 @@ class Level:
         self.visible_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
+        self.player = Player(self.obstacle_sprites, [self.visible_sprites])
 
         self.level_number = 1
 
@@ -34,9 +35,7 @@ class Level:
                     Wall((col * BLOCK_SIZE, row * BLOCK_SIZE),
                          [self.visible_sprites, self.obstacle_sprites])
                 if tile == "P":
-                    self.player = Player(
-                        (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
-                        [self.visible_sprites])
+                    self.player.set_position((col * BLOCK_SIZE, row * BLOCK_SIZE))
                 if tile == "G":
                     Ghost((col * BLOCK_SIZE, row * BLOCK_SIZE),
                           self.obstacle_sprites,
