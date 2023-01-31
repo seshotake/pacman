@@ -116,10 +116,16 @@ class Player(pygame.sprite.Sprite):
             return
 
         if self.rect.colliderect(enemy.rect):
-            self.health -= enemy.damage
-            self.give_immunity(IMMUNITY_TIME)
+            self.get_damage(enemy.damage)
+            self.get_immunity(IMMUNITY_TIME)
 
-    def give_health(self, health) -> None:
+    def get_damage(self, damage_value) -> None:
+        """Get damage from the player"""
+
+        if self.health > 0:
+            self.health -= damage_value
+
+    def get_health(self, health) -> None:
         """Give the player health"""
 
         self.health += health
@@ -127,7 +133,7 @@ class Player(pygame.sprite.Sprite):
         if self.health > self.max_health:
             self.health = self.max_health
 
-    def give_immunity(self, time) -> None:
+    def get_immunity(self, time) -> None:
         """Give the player immunity"""
 
         self.immune = True
