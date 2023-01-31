@@ -1,5 +1,5 @@
 import pygame
-from pacman.settings import HEIGHT, WIDTH
+from pacman.settings import HEIGHT, MAX_HEALTH, WIDTH, PLAYER_SPEED, IMMUNITY_TIME
 
 
 class Player(pygame.sprite.Sprite):
@@ -19,8 +19,12 @@ class Player(pygame.sprite.Sprite):
         self.obstacle_sprites = obstacle_sprites
         self.direction = pygame.math.Vector2(0, 0)
 
-        self.speed = 5
-        self.health = self.max_health = 3
+        self.speed = PLAYER_SPEED
+        self.health = self.max_health = MAX_HEALTH
+
+        self.immune = False
+        self.start_time_immunity = 0
+        self.time_immune = self.start_time_immunity + IMMUNITY_TIME
 
     def input(self) -> None:
         keys = pygame.key.get_pressed()
@@ -42,6 +46,7 @@ class Player(pygame.sprite.Sprite):
     def update(self) -> None:
         self.input()
         self.move()
+        self.update_immunity()
 
     def move(self) -> None:
         self.normalize_direction()
@@ -81,6 +86,22 @@ class Player(pygame.sprite.Sprite):
             rect.top = wall.hitbox.bottom
 
     def collide_enemy(self, enemy) -> None:
+        if self.immune:
+            return
+
         if self.rect.colliderect(enemy.rect):
             self.health -= enemy.damage
-            self.rect.topleft = self.start_position
+            self.immune = True
+            self.speed = PLAYER_SPEED + 2
+            self.start_time_immunity = pygame.time.get_ticks()
+            self.time_immune = self.start_time_immunity + IMMUNITY_TIME
+
+    def update_immunity(self) -> None:
+        if self.immune:
+            self.image.set_alpha(128)
+        else:
+            self.image.set_alpha(255)
+
+        if self.time_immune <= pygame.time.get_ticks():
+            self.immune = False
+            self.speed = 5

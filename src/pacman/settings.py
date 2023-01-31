@@ -6,3 +6,7 @@ HEIGHT: int = WORLD_SIZE * BLOCK_SIZE
 
 TITLE: str = 'Pacman'
 FPS: int = 60
+
+PLAYER_SPEED: int = 5
+IMMUNITY_TIME: int = 2000
+MAX_HEALTH: int = 3
