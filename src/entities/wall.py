@@ -2,6 +2,8 @@ import pygame
 
 
 class Wall(pygame.sprite.Sprite):
+    """Represent the wall that blocks the moving of the sprites."""
+
     def __init__(self, position, *groups) -> None:
         super().__init__(*groups)
 

@@ -8,6 +8,8 @@ from pacman.settings import FPS, HEIGHT, TITLE, WIDTH
 
 
 class Game:
+    """Represents the pacman game."""
+
     def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -17,7 +19,7 @@ class Game:
         self.level = Level()
 
     def run(self) -> None:
-        """Game loop."""
+        """Run the game."""
 
         while True:
             self.handle_events()
@@ -26,7 +28,7 @@ class Game:
             self.update()
 
     def handle_events(self) -> None:
-        """Game loop - events."""
+        """Handle events."""
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -39,7 +41,7 @@ class Game:
         self.screen.fill('black')
 
     def draw(self) -> None:
-        """Game loop - draw."""
+        """Draw the game."""
 
         # draw sprites
         self.level.draw()
@@ -49,7 +51,7 @@ class Game:
         debug(f"Health: {self.level.player.health}", (10, 120))
 
     def update(self) -> None:
-        """Game loop - update."""
+        """Update the game."""
 
         # update sprites
         self.level.update()
