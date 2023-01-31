@@ -1,34 +1,33 @@
-import random
-
 import pygame
 
-from entities.player import Player
+from entities.entity import Entity, get_player
+from entities.wall import Wall
 
 
-class Ghost(Player):
+class Ghost(Entity):
     """Represent the ghost that hostiles the player."""
 
-    def __init__(self, position, obstacle_sprites, *groups) -> None:
-        super().__init__(position, obstacle_sprites, *groups)
+    def __init__(self, position, obstacle_sprites, id: int, *groups) -> None:
+        super().__init__(*groups, type="enemy", position=position,
+                         obstacle_sprites=obstacle_sprites, speed=id+1,
+                         max_health=id, image=f"assets/images/ghost{id}.png")
 
-        # load random ghost image
-        ghost_id = random.randint(1, 3)
-        ghost_filename = f"assets/images/ghost{ghost_id}.png"
-
-        self.image = pygame.image.load(ghost_filename).convert_alpha()
-        self.rect = self.image.get_rect(topleft=position)
         self.hitbox = self.rect.inflate(-5, -5)
+        self.damage = id
 
-        self.obstacle_sprites = obstacle_sprites
 
-        self.direction = pygame.math.Vector2()
+    def collide_walls(self, xvel: float, yvel: float, walls: list[Wall]) -> None:
+        """Check if the ghost collide with walls"""
 
-        self.speed = ghost_id + 1
-        self.damage = ghost_id
-        self.health = self.max_health = ghost_id
+        for wall in walls:
+            if self.hitbox.colliderect(wall.hitbox):
+                self.swap_position(xvel, yvel, self.hitbox, wall.hitbox)
 
-    def get_player_direction(self, player: Player) -> pygame.math.Vector2:
+    def get_player_direction(self, player: Entity) -> pygame.math.Vector2:
         """Get the direction of the player"""
+
+        if not player:
+            return pygame.math.Vector2(0, 0)
 
         enemy_center = pygame.math.Vector2(self.rect.center)
         player_center = pygame.math.Vector2(player.rect.center)
@@ -43,18 +42,6 @@ class Ghost(Player):
     def update(self) -> None:
         """Update the ghost"""
 
-        self.move()
-
-    def enemy_update(self, player: Player) -> None:
-        """Update the ghost depending on the player"""
-
+        player = get_player(self.groups())
         self.direction = self.get_player_direction(player)
-        player.collide_enemy(self)
-
-    def collide_walls(self, xvel, yvel, walls) -> None:
-        """Check if the ghost collide with walls"""
-
-        for wall in walls:
-            if self.hitbox.colliderect(wall.rect):
-                self.swap_position(xvel, yvel, self.hitbox, wall.hitbox)
-
+        return super().update()

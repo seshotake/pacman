@@ -10,4 +10,4 @@ class Wall(pygame.sprite.Sprite):
         self.image = pygame.image.load(
             "assets/images/wall.png").convert_alpha()
         self.rect = self.image.get_rect(topleft=position)
-        self.hitbox = self.rect.inflate(-3, -3)
+        self.hitbox = self.rect.inflate(-4, -4)

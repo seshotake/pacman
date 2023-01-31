@@ -1,24 +1,12 @@
 import pygame
+
+import random
+
 from entities.ghost import Ghost
 from entities.player import Player
 from entities.wall import Wall
 
 from pacman.settings import BLOCK_SIZE
-
-
-class LevelGroup(pygame.sprite.Group):
-    """Represents a group of sprites in level that can be updated."""
-
-    def __init__(self, *sprites) -> None:
-        super().__init__(*sprites)
-
-    def enemy_update(self, player: Player) -> None:
-        """Update the enemies in the level."""
-
-        enemy_sprites = [sprite for sprite in self.sprites()
-                         if isinstance(sprite, Ghost)]
-        for sprite in enemy_sprites:
-            sprite.enemy_update(player)
 
 
 class Level:
@@ -27,7 +15,7 @@ class Level:
     def __init__(self) -> None:
         self.display_surface = pygame.display.get_surface()
 
-        self.visible_sprites = LevelGroup()
+        self.visible_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
 
@@ -50,9 +38,9 @@ class Level:
                         (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
                         [self.visible_sprites])
                 if tile == "G":
-                    self.enemies.add(Ghost(
-                        (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
-                        [self.visible_sprites]))
+                    Ghost((col * BLOCK_SIZE, row * BLOCK_SIZE),
+                          self.obstacle_sprites,
+                          random.randint(1, 3), [self.visible_sprites, self.enemies])
 
     def load_level(self) -> list[str]:
         """Load the level from a file."""
@@ -70,4 +58,3 @@ class Level:
         """Update the level."""
 
         self.visible_sprites.update()
-        self.visible_sprites.enemy_update(self.player)

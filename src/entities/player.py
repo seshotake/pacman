@@ -1,55 +1,28 @@
 import pygame
-from entities.wall import Wall
-from pacman.settings import HEIGHT, MAX_HEALTH, WIDTH, PLAYER_SPEED, IMMUNITY_TIME
+from pacman.settings import IMMUNITY_TIME, MAX_HEALTH, PLAYER_SPEED
+
+from entities.entity import Entity, get_enemies
 
 
-class Player(pygame.sprite.Sprite):
-    """Represent the player that can move"""
-
-    rect: pygame.rect.Rect
-    image: pygame.surface.Surface
+class Player(Entity):
+    """Represents the player"""
 
     def __init__(self, position, obstacle_sprites, *groups) -> None:
-        super().__init__(*groups)
+        super().__init__(*groups, type="player", position=position,
+                         obstacle_sprites=obstacle_sprites,
+                         speed=PLAYER_SPEED, max_health=MAX_HEALTH)
 
-        self.image = pygame.image.load(
-            "assets/images/player.png").convert_alpha()
-
-        self.start_position = position
-        self.rect = self.image.get_rect(topleft=position)
-        self.enemies = [enemy for enemy in obstacle_sprites
-                        if hasattr(enemy, "enemy_update")]
-
-        self.obstacle_sprites = obstacle_sprites
-        self.direction = pygame.math.Vector2(0, 0)
-
-        self.speed = PLAYER_SPEED
-        self.health = self.max_health = MAX_HEALTH
+        self.enemies = get_enemies(self.groups())
 
         self.immune = False
         self.start_time_immunity = 0
-        self.time_immune = self.start_time_immunity + IMMUNITY_TIME
+        self.time_immunity = IMMUNITY_TIME
 
-    @staticmethod
-    def normalize_direction(direction):
-        """Normalize the direction vector"""
+    def set_position(self, x: int, y: int) -> None:
+        """Set the position of the player"""
 
-        if direction.magnitude() != 0:
-            direction = direction.normalize()
-
-    @staticmethod
-    def swap_position(xvel: float, yvel: float,
-                      rect: pygame.rect.Rect, hitbox: pygame.rect.Rect) -> None:
-        """Swap the position of the player with the hitbox of other sprite"""
-
-        if xvel > 0:
-            rect.right = hitbox.left
-        if xvel < 0:
-            rect.left = hitbox.right
-        if yvel > 0:
-            rect.bottom = hitbox.top
-        if yvel < 0:
-            rect.top = hitbox.bottom
+        self.rect.x = x
+        self.rect.y = y
 
     def input(self) -> None:
         """Get the input of the player"""
@@ -77,83 +50,56 @@ class Player(pygame.sprite.Sprite):
         self.move()
         self.update_immunity()
 
-    def move(self) -> None:
-        """Move the player"""
+    def collide(self, xvel: float, yvel: float) -> None:
+        """Check if the player collide with other sprites"""
 
-        self.normalize_direction(self.direction)
+        self.collide_enemies()
+        return super().collide(xvel, yvel)
 
-        self.rect.x += int(self.direction.x * self.speed)
-        self.collide_walls(self.direction.x, 0, walls=self.obstacle_sprites)
-        self.rect.y += int(self.direction.y * self.speed)
-        self.collide_walls(0, self.direction.y, walls=self.obstacle_sprites)
+    def collide_enemies(self) -> None:
+        """Check if the player collide with an enemy"""
 
-    def check_oustide(self):
-        """Check if the player is outside the screen"""
+        for enemy in self.enemies:
 
-        if self.rect.top > HEIGHT:
-            self.rect.top = 0
-        if self.rect.top < 0:
-            self.rect.top = HEIGHT
+            if self.immune:
+                return
 
-        if self.rect.left > WIDTH:
-            self.rect.left = 0
-        if self.rect.left < 0:
-            self.rect.left = WIDTH
+            if self.rect.colliderect(enemy.rect):
+                self.get_damage(enemy.damage)
+                self.get_immunity(pygame.time.get_ticks())
 
-    def collide_walls(self, xvel: float, yvel: float, walls: list[Wall]) -> None:
-        """Check if the player collides with a wall"""
-
-        for wall in walls:
-            if self.rect.colliderect(wall.hitbox):
-                self.swap_position(xvel, yvel, self.rect, wall.hitbox)
-
-        self.check_oustide()
-
-    def collide_enemy(self, enemy) -> None:
-        """Check if the player collides with an enemy"""
-
-        if self.immune:
-            return
-
-        if self.rect.colliderect(enemy.rect):
-            self.get_damage(enemy.damage)
-            self.get_immunity(IMMUNITY_TIME)
-
-    def get_damage(self, damage_value) -> None:
-        """Get damage from the player"""
+    def get_damage(self, damage_value: int) -> None:
+        """Get damage from an enemy"""
 
         if self.health > 0:
             self.health -= damage_value
 
-    def get_health(self, health) -> None:
-        """Give the player health"""
+    def get_health(self, health_value: int = 1) -> None:
+        """Get health"""
 
-        self.health += health
+        if self.health < self.max_health:
+            self.health += health_value
 
-        if self.health > self.max_health:
-            self.health = self.max_health
-
-    def get_immunity(self, time) -> None:
-        """Give the player immunity"""
+    def get_immunity(self, start_time) -> None:
+        """Get immunity"""
 
         self.immune = True
-        self.speed = PLAYER_SPEED + 2
-        self.start_time_immunity = pygame.time.get_ticks()
-        self.time_immune = self.start_time_immunity + time
+        self.start_time_immunity = start_time
+        self.time_immunity = self.start_time_immunity + IMMUNITY_TIME
 
     def update_immunity(self) -> None:
-        """Update the immunity of the player"""
+        """Update the immunity"""
 
         if self.immune:
             self.image.set_alpha(128)
+            if pygame.time.get_ticks() >= self.time_immunity:
+                self.reset_immunity()
         else:
             self.image.set_alpha(255)
 
-        self.reset_immunity()
-
     def reset_immunity(self) -> None:
-        """Reset the immunity of the player"""
+        """Reset the immunity"""
 
-        if self.time_immune <= pygame.time.get_ticks():
-            self.immune = False
-            self.speed = PLAYER_SPEED
+        self.immune = False
+        self.start_time_immunity = 0
+        self.time_immunity = IMMUNITY_TIME
