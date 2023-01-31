@@ -13,6 +13,8 @@ class Player(pygame.sprite.Sprite):
 
         self.start_position = position
         self.rect = self.image.get_rect(topleft=position)
+        self.enemies = [enemy for enemy in obstacle_sprites
+                        if hasattr(enemy, "enemy_update")]
 
         self.obstacle_sprites = obstacle_sprites
         self.direction = pygame.math.Vector2(0, 0)
@@ -42,8 +44,7 @@ class Player(pygame.sprite.Sprite):
         self.move()
 
     def move(self) -> None:
-        if self.direction.magnitude() != 0:
-            self.direction = self.direction.normalize()
+        self.normalize_direction()
 
         self.rect.x += int(self.direction.x * self.speed)
         self.collide(self.direction.x, 0, walls=self.obstacle_sprites)
@@ -60,14 +61,26 @@ class Player(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = WIDTH
 
+    def normalize_direction(self):
+        if self.direction.magnitude() != 0:
+            self.direction = self.direction.normalize()
+
     def collide(self, xvel, yvel, walls) -> None:
         for wall in walls:
             if self.rect.colliderect(wall.hitbox):
-                if xvel > 0:
-                    self.rect.right = wall.hitbox.left
-                if xvel < 0:
-                    self.rect.left = wall.hitbox.right
-                if yvel > 0:
-                    self.rect.bottom = wall.hitbox.top
-                if yvel < 0:
-                    self.rect.top = wall.hitbox.bottom
+                self.swap_position(xvel, yvel, self.rect, wall)
+
+    def swap_position(self, xvel, yvel, rect, wall):
+        if xvel > 0:
+            rect.right = wall.hitbox.left
+        if xvel < 0:
+            rect.left = wall.hitbox.right
+        if yvel > 0:
+            rect.bottom = wall.hitbox.top
+        if yvel < 0:
+            rect.top = wall.hitbox.bottom
+
+    def collide_enemy(self, enemy) -> None:
+        if self.rect.colliderect(enemy.rect):
+            self.health -= enemy.damage
+            self.rect.topleft = self.start_position

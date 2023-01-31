@@ -40,11 +40,11 @@ class Level:
                 if tile == "P":
                     self.player = Player(
                         (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
-                            [self.visible_sprites])
+                        [self.visible_sprites])
                 if tile == "G":
                     self.enemies.add(Ghost(
                         (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
-                        [self.visible_sprites, self.enemies]))
+                        [self.visible_sprites]))
 
     def load_level(self) -> list[str]:
         filename = f"assets/levels/level_{self.level_number}.txt"

@@ -2,6 +2,8 @@ import random
 
 import pygame
 
+import re
+
 from entities.player import Player
 
 
@@ -9,17 +11,21 @@ class Ghost(Player):
     def __init__(self, position, obstacle_sprites, *groups) -> None:
         super().__init__(position, obstacle_sprites, *groups)
 
+        # load random ghost image
+        ghost_id = random.randint(1, 3)
+
         self.image = pygame.image.load(
-            "assets/images/ghost.png").convert_alpha()
+            f"assets/images/ghost{ghost_id}.png").convert_alpha()
         self.rect = self.image.get_rect(topleft=position)
+        self.hitbox = self.rect.inflate(-5, -5)
 
         self.obstacle_sprites = obstacle_sprites
 
-        self.direction = pygame.math.Vector2(random.randint(
-            -1, 1), random.randint(-1, 1))
+        self.direction = pygame.math.Vector2()
 
-        self.speed = 2
-        self.health = self.max_health = 1
+        self.speed = ghost_id + 1
+        self.damage = ghost_id
+        self.health = self.max_health = ghost_id
 
     def get_player_direction(self, player: Player) -> pygame.math.Vector2:
         enemy_center = pygame.math.Vector2(self.rect.center)
@@ -37,9 +43,9 @@ class Ghost(Player):
 
     def enemy_update(self, player: Player) -> None:
         self.direction = self.get_player_direction(player)
-        self.collide_with_player(player)
+        player.collide_enemy(self)
 
-    def collide_with_player(self, player: Player) -> None:
-        if self.rect.colliderect(player.rect):
-            player.health -= 1
-            player.rect.topleft = player.start_position
+    def collide(self, xvel, yvel, walls) -> None:
+        for wall in walls:
+            if self.hitbox.colliderect(wall.rect):
+                self.swap_position(xvel, yvel, self.hitbox, wall)
