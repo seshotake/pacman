@@ -1,13 +1,17 @@
 import pygame
+from pacman.settings import HEIGHT, WIDTH
 
-from pacman.settings import WIDTH, HEIGHT
 
 class Player(pygame.sprite.Sprite):
+    rect: pygame.rect.Rect
+
     def __init__(self, position, obstacle_sprites, *groups) -> None:
         super().__init__(*groups)
 
         self.image = pygame.image.load(
             "assets/images/player.png").convert_alpha()
+
+        self.start_position = position
         self.rect = self.image.get_rect(topleft=position)
 
         self.obstacle_sprites = obstacle_sprites

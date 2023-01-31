@@ -46,6 +46,7 @@ class Game:
         debug(f"FPS: {self.clock.get_fps():.2f}")
         debug(f"Level: {self.level.level_number}", (10, 40))
         debug(f"Position: {self.level.player.rect.topleft}", (10, 80))
+        debug(f"Health: {self.level.player.health}", (10, 120))
 
     def update(self) -> None:
         """Game loop - update."""

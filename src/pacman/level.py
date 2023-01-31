@@ -1,16 +1,29 @@
 import pygame
+from entities.ghost import Ghost
 from entities.player import Player
-
 from entities.wall import Wall
 
 from pacman.settings import BLOCK_SIZE
+
+
+class LevelGroup(pygame.sprite.Group):
+    def __init__(self, *sprites) -> None:
+        super().__init__(*sprites)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites()
+                         if hasattr(sprite, "enemy_update")]
+        for sprite in enemy_sprites:
+            sprite.enemy_update(player)
+
 
 class Level:
     def __init__(self) -> None:
         self.display_surface = pygame.display.get_surface()
 
-        self.visible_sprites = pygame.sprite.Group()
+        self.visible_sprites = LevelGroup()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
 
         self.level_number = 1
 
@@ -27,7 +40,11 @@ class Level:
                 if tile == "P":
                     self.player = Player(
                         (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
-                        [self.visible_sprites])
+                            [self.visible_sprites])
+                if tile == "G":
+                    self.enemies.add(Ghost(
+                        (col * BLOCK_SIZE, row * BLOCK_SIZE), self.obstacle_sprites,
+                        [self.visible_sprites, self.enemies]))
 
     def load_level(self) -> list[str]:
         filename = f"assets/levels/level_{self.level_number}.txt"
@@ -39,3 +56,4 @@ class Level:
 
     def update(self) -> None:
         self.visible_sprites.update()
+        self.visible_sprites.enemy_update(self.player)
