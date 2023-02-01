@@ -26,6 +26,8 @@ class Entity(pygame.sprite.Sprite):
         self.speed = kwargs.get("speed", 1)
         self.health = self.max_health = kwargs.get("max_health", 1)
 
+        self.damage = kwargs.get("damage", 0)
+
     def update(self) -> None:
         """Update the entity"""
 
@@ -46,12 +48,13 @@ class Entity(pygame.sprite.Sprite):
         self.collide_walls(xvel, yvel, walls=self.obstacle_sprites)
         self.collide_outside()
 
-    def collide_walls(self, xvel: float, yvel: float, walls: list[Wall]) -> None:
+    def collide_walls(self, xvel: float, yvel: float, walls: pygame.sprite.Group) -> None:
         """Check collision with walls"""
 
         for wall in walls:
-            if self.rect.colliderect(wall.hitbox):
-                self.swap_position(xvel, yvel, self.rect, wall.hitbox)
+            if isinstance(wall, Wall):
+                if self.rect.colliderect(wall.hitbox):
+                    self.swap_position(xvel, yvel, self.rect, wall.hitbox)
 
     def collide_outside(self) -> None:
         """Check collision with the outside of the screen"""
@@ -65,13 +68,15 @@ class Entity(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.rect.right = WIDTH
 
-    def normalize_direction(self, direction: pygame.math.Vector2) -> None:
+    @staticmethod
+    def normalize_direction(direction: pygame.math.Vector2) -> None:
         """Normalize the direction vector"""
 
         if direction.magnitude() != 0:
             direction = direction.normalize()
 
-    def swap_position(self, xvel: float, yvel: float,
+    @staticmethod
+    def swap_position(xvel: float, yvel: float,
                       rect: pygame.rect.Rect, hitbox: pygame.rect.Rect) -> None:
         """Swap the position of the player with the hitbox of other sprite"""
 

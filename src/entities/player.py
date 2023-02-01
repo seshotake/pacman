@@ -30,6 +30,8 @@ class Player(Entity):
         self.start_time_immunity = 0
         self.time_immunity = IMMUNITY_TIME
 
+        self.is_alive = True
+
     def find_enemies(self) -> None:
         """Find the enemies"""
 
@@ -84,17 +86,17 @@ class Player(Entity):
             if self.immune:
                 return
 
-
             if self.rect.colliderect(enemy.rect):
-                if hasattr(enemy, "damage"):
-                    self.get_damage(enemy.damage)
-                    self.get_immunity(pygame.time.get_ticks())
+                self.get_damage(enemy.damage)
+                self.get_immunity(pygame.time.get_ticks())
 
     def get_damage(self, damage_value: int) -> None:
         """Get damage from an enemy"""
 
         if self.health > 0:
             self.health -= damage_value
+        else:
+            self.is_alive = False
 
     def get_health(self, health_value: int = 1) -> None:
         """Get health"""
