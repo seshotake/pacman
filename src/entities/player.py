@@ -1,7 +1,20 @@
 import pygame
 from pacman.settings import IMMUNITY_TIME, MAX_HEALTH, PLAYER_SPEED
 
-from entities.entity import Entity, get_enemies
+from entities.entity import Entity
+
+
+def get_enemies(groups: list[pygame.sprite.AbstractGroup]) -> list[Entity]:
+    """Get the enemies"""
+
+    enemies: list[Entity] = []
+
+    for group in groups:
+        for sprite in group.sprites():
+            if isinstance(sprite, Entity) and sprite.type == "enemy":
+                enemies.append(sprite)
+
+    return enemies
 
 
 class Player(Entity):
@@ -11,11 +24,18 @@ class Player(Entity):
         super().__init__(*groups, type="player", obstacle_sprites=obstacle_sprites,
                          speed=PLAYER_SPEED, max_health=MAX_HEALTH)
 
-        self.enemies = get_enemies(self.groups())
+        self.enemies: list[Entity] = []
 
         self.immune = False
         self.start_time_immunity = 0
         self.time_immunity = IMMUNITY_TIME
+
+    def find_enemies(self) -> None:
+        """Find the enemies"""
+
+        # if not enemies
+        if not self.enemies:
+            self.enemies = get_enemies(self.groups())
 
     def set_position(self, position) -> None:
         """Set the position of the player"""
@@ -57,14 +77,18 @@ class Player(Entity):
     def collide_enemies(self) -> None:
         """Check if the player collide with an enemy"""
 
+        self.find_enemies()
+
         for enemy in self.enemies:
 
             if self.immune:
                 return
 
+
             if self.rect.colliderect(enemy.rect):
-                self.get_damage(enemy.damage)
-                self.get_immunity(pygame.time.get_ticks())
+                if hasattr(enemy, "damage"):
+                    self.get_damage(enemy.damage)
+                    self.get_immunity(pygame.time.get_ticks())
 
     def get_damage(self, damage_value: int) -> None:
         """Get damage from an enemy"""

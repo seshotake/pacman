@@ -35,7 +35,8 @@ class Level:
                     Wall((col * BLOCK_SIZE, row * BLOCK_SIZE),
                          [self.visible_sprites, self.obstacle_sprites])
                 if tile == "P":
-                    self.player.set_position((col * BLOCK_SIZE, row * BLOCK_SIZE))
+                    self.player.set_position(
+                        (col * BLOCK_SIZE, row * BLOCK_SIZE))
                 if tile == "G":
                     Ghost((col * BLOCK_SIZE, row * BLOCK_SIZE),
                           self.obstacle_sprites,
