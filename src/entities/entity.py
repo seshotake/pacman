@@ -1,7 +1,7 @@
 import pygame
+from pacman.settings import HEIGHT, WIDTH
 
 from entities.wall import Wall
-from pacman.settings import HEIGHT, WIDTH
 
 
 class Entity(pygame.sprite.Sprite):
@@ -83,25 +83,3 @@ class Entity(pygame.sprite.Sprite):
             rect.bottom = hitbox.top
         if yvel < 0:
             rect.top = hitbox.bottom
-
-
-def get_enemies(groups) -> list:
-    """Get all the enemies"""
-
-    enemies = []
-
-    for group in groups:
-        for sprite in group:
-            if hasattr(sprite, "type") and sprite.type == "enemy":
-                enemies.append(sprite)
-
-    return enemies
-
-
-def get_player(groups) -> pygame.sprite.Sprite:
-    """Get the player"""
-
-    for group in groups:
-        for sprite in group:
-            if hasattr(sprite, "type") and sprite.type == "player":
-                return sprite

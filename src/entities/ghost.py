@@ -1,7 +1,17 @@
 import pygame
 
-from entities.entity import Entity, get_player
+from entities.entity import Entity
 from entities.wall import Wall
+
+
+def get_player(groups: list[pygame.sprite.AbstractGroup]) -> Entity | None:
+    """Get the player from the groups"""
+
+    for group in groups:
+        for sprite in group:
+            if isinstance(sprite, Entity) and sprite.type == "player":
+                return sprite
+    return None
 
 
 class Ghost(Entity):
@@ -16,7 +26,6 @@ class Ghost(Entity):
         self.player = get_player(self.groups())
         self.damage = id
 
-
     def collide_walls(self, xvel: float, yvel: float, walls: list[Wall]) -> None:
         """Check if the ghost collide with walls"""
 
@@ -24,10 +33,12 @@ class Ghost(Entity):
             if self.hitbox.colliderect(wall.hitbox):
                 self.swap_position(xvel, yvel, self.hitbox, wall.hitbox)
 
-    def get_player_direction(self, player: Entity) -> pygame.math.Vector2:
+    def get_player_direction(self,
+                             player: Entity | None) -> pygame.math.Vector2:
         """Get the direction of the player"""
 
-        if not player:
+        if player is None:
+            self.player = get_player(self.groups())
             return pygame.math.Vector2(0, 0)
 
         enemy_center = pygame.math.Vector2(self.rect.center)

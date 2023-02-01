@@ -2,9 +2,9 @@ import sys
 
 import pygame
 
-from pacman.debug import debug
 from pacman.level import Level
 from pacman.settings import FPS, HEIGHT, TITLE, WIDTH
+from pacman.ui import UI
 
 
 class Game:
@@ -18,6 +18,7 @@ class Game:
 
         self.level = Level()
         self.player = self.level.player
+        self.ui = UI(self.player)
 
     def run(self) -> None:
         """Run the game."""
@@ -46,10 +47,7 @@ class Game:
 
         # draw sprites
         self.level.draw()
-        debug(f"FPS: {self.clock.get_fps():.2f}")
-        debug(f"Level: {self.level.level_number}", (10, 40))
-        debug(f"Position: {self.level.player.rect.topleft}", (10, 80))
-        debug(f"Health: {self.level.player.health}", (10, 120))
+        self.ui.display()
 
     def update(self) -> None:
         """Update the game."""
