@@ -1,6 +1,7 @@
 [[language]]
 name = "python"
 auto-format = true
+language-server = { command = "pylsp" }
 
 [language.config.pylsp.plugins.ruff]
 enable = true
